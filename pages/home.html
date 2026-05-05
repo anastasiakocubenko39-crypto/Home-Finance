@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Побутова хімія</title>
+  <link rel="stylesheet" href="home.css">
+</head>
+<body>
+  
+<button onclick="goBack()">⬅ Назад</button>
+
+<h1>🧴 Побутова хімія</h1>
+
+<div class="form">
+  <input id="name" placeholder="Назва">
+  <input id="amount" type="number" placeholder="Кількість">
+
+  <select id="unit">
+    <option value="шт">шт</option>
+    <option value="л">л</option>
+  </select>
+
+  <select id="category">
+    <option>Кухня</option>
+    <option>Ванна</option>
+    <option>Прання</option>
+    <option>Підлога</option>
+    <option>Вікна</option>
+    <option>Гігієна</option>
+  </select>
+
+  <input id="desc" placeholder="Опис">
+  <input id="image" placeholder="URL фото">
+
+  <button onclick="addItem()">Додати</button>
+</div>
+
+<!-- 🔥 КАТЕГОРІЇ -->
+<div id="sections"></div>
+
+<!-- 🔴 ОКРЕМО ЗАКІНЧИЛОСЬ -->
+<h2>🛒 Закінчилось</h2>
+<div id="emptyList" class="scroll"></div>
+
+<script src="home.js"></script>
+</body>
+</html>

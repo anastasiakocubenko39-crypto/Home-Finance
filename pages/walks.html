@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Прогулянки</title>
+  <link rel="stylesheet" href="walks.css">
+</head>
+<body>
+  
+<button onclick="goBack()">⬅ Назад</button>
+
+<h1>🚶 Прогулянки / Витрати</h1>
+
+<div class="form">
+  <input id="title" placeholder="Що це було? (кава, кіно...)" />
+  
+  <select id="category">
+    <option value="☕ Кава">☕ Кава</option>
+    <option value="🍔 Їжа">🍔 Їжа</option>
+    <option value="🚗 Транспорт">🚗 Транспорт</option>
+  </select>
+
+  <input id="amount" type="number" placeholder="Сума грн" />
+  <button onclick="addWalk()">Додати</button>
+</div>
+
+<h2>📋 Витрати</h2>
+<div id="list"></div>
+
+<h2>💰 Всього: <span id="total">0</span> грн</h2>
+
+<script src="walks.js"></script>
+</body>
+</html>

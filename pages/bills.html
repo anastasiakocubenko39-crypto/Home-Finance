@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Комуналка</title>
+  <link rel="stylesheet" href="bills.css">
+</head>
+<body>
+
+<button onclick="goHome()">🏠 Головна</button>
+
+<h1>🏠 Комунальні платежі</h1>
+
+<div id="billsList" class="grid"></div>
+
+<h2>📟 Лічильники</h2>
+<div id="meters" class="grid"></div>
+
+<h2>📊 Загальна сума: <span id="total">0</span> грн</h2>
+
+<button onclick="openHistory()">📜 Архів оплат</button>
+
+<div id="historyModal" class="modal">
+  <div class="modal-content">
+    <h2>Історія оплат</h2>
+    <div id="historyList"></div>
+    <button onclick="closeHistory()">Закрити</button>
+  </div>
+</div>
+
+<script src="bills.js"></script>
+</body>
+</html>

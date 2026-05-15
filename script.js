@@ -97,20 +97,24 @@ async function saveBudget() {
 }
 
 // UI
+function fmt(n) {
+  return Number(n.toFixed(2)).toLocaleString("uk-UA") + " грн";
+}
+
 function updateUI() {
   const leftEl  = document.getElementById("left");
   const spentEl = document.getElementById("spent");
-  if (leftEl)  leftEl.innerText  = (total - spentValue) + " грн";
-  if (spentEl) spentEl.innerText = spentValue + " грн";
+  if (leftEl)  leftEl.innerText  = fmt(total - spentValue);
+  if (spentEl) spentEl.innerText = fmt(spentValue);
 
   const pt = document.getElementById("productsTotal");
   const wt = document.getElementById("walksTotal");
   const ht = document.getElementById("homeTotal");
   const bt = document.getElementById("billsTotal");
-  if (pt) pt.innerText = categories.products + " грн";
-  if (wt) wt.innerText = categories.walks    + " грн";
-  if (ht) ht.innerText = categories.home     + " грн";
-  if (bt) bt.innerText = categories.bills    + " грн";
+  if (pt) pt.innerText = fmt(categories.products);
+  if (wt) wt.innerText = fmt(categories.walks);
+  if (ht) ht.innerText = fmt(categories.home);
+  if (bt) bt.innerText = fmt(categories.bills);
 
   // прогрес-бар
   const fill    = document.getElementById("progressFill");

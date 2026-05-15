@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Побутова хімія</title>
+  <link rel="stylesheet" href="home.css">
+</head>
+<body>
+
+<div class="sub-header">
+  <button class="back-btn" onclick="goBack()">← Назад</button>
+  <h1>🧴 Побутова хімія</h1>
+</div>
+
+<div class="sec-label">Додати засіб</div>
+<div class="panel">
+  <div class="form-row">
+    <input id="name" placeholder="Назва" style="flex:2;min-width:0">
+    <input id="amount" type="number" placeholder="К-сть" style="flex:1;min-width:0">
+    <select id="unit" style="width:65px;min-width:0">
+      <option value="шт">шт</option>
+      <option value="л">л</option>
+    </select>
+  </div>
+  <div class="form-row" style="margin-top:8px">
+    <select id="category" style="flex:1;min-width:0">
+      <option>Кухня</option><option>Ванна</option><option>Прання</option>
+      <option>Підлога</option><option>Вікна</option><option>Гігієна</option>
+    </select>
+    <input id="desc" placeholder="Опис" style="flex:2;min-width:0">
+  </div>
+  <div class="form-row" style="margin-top:8px">
+    <input id="image" placeholder="URL фото (необов'язково)" style="flex:1;min-width:0">
+  </div>
+  <button class="btn full" onclick="addItem()">➕ Додати</button>
+</div>
+
+<div id="sections" style="padding:0 16px"></div>
+
+<div class="sec-label">🛒 Закінчилось / Треба купити</div>
+<div id="emptyList" style="padding:0 16px 20px"></div>
+
+<script src="home.js"></script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Фінансовий помічник</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="page-header">
+  <h1>💸 Фінансовий помічник</h1>
+  <div class="subtitle" id="currentDate"></div>
+</div>
+
+<div class="budget-row">
+  <div class="budget-card spent">
+    <div class="lbl">Витрачено</div>
+    <div class="val" id="spent">0 грн</div>
+  </div>
+  <div class="budget-card left">
+    <div class="lbl">Залишок</div>
+    <div class="val" id="left">0 грн</div>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-meta">
+    <span>Бюджет використано</span>
+    <span id="progressPct">0%</span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+</div>
+
+<div class="panel" style="margin-top:14px">
+  <h2>💰 Бюджет</h2>
+  <div class="form-row">
+    <input type="number" id="totalInput" placeholder="Місячний бюджет (грн)" style="flex:1;min-width:0">
+    <button class="btn" onclick="setTotal()">Зберегти</button>
+    <button class="btn danger" onclick="resetMonth()">Обнулити</button>
+  </div>
+  <p id="lastUpdate" style="font-size:11px;color:var(--muted);margin-top:8px"></p>
+</div>
+
+<div class="panel">
+  <h2>📊 Історія витрат</h2>
+  <div class="form-row">
+    <select id="monthFilter" style="flex:1;min-width:0">
+      <option value="">Місяць</option>
+      <option value="1">Січень</option><option value="2">Лютий</option>
+      <option value="3">Березень</option><option value="4">Квітень</option>
+      <option value="5">Травень</option><option value="6">Червень</option>
+      <option value="7">Липень</option><option value="8">Серпень</option>
+      <option value="9">Вересень</option><option value="10">Жовтень</option>
+      <option value="11">Листопад</option><option value="12">Грудень</option>
+    </select>
+    <input id="yearFilter" type="number" placeholder="Рік" style="width:80px;min-width:0">
+    <button class="btn gray" onclick="loadHistory()">Показати</button>
+  </div>
+  <div id="history" style="margin-top:10px"></div>
+</div>
+
+<div class="sec-label">Категорії витрат</div>
+<div class="cards-grid">
+  <div class="cat-card" onclick="goTo('products.html')">
+    <span class="c-emoji">🛒</span>
+    <div class="c-name">Продукти</div>
+    <div class="c-amt" id="productsTotal">0 грн</div>
+  </div>
+  <div class="cat-card" onclick="goTo('walks.html')">
+    <span class="c-emoji">🚶</span>
+    <div class="c-name">Прогулянки</div>
+    <div class="c-amt" id="walksTotal">0 грн</div>
+  </div>
+  <div class="cat-card" onclick="goTo('home.html')">
+    <span class="c-emoji">🧴</span>
+    <div class="c-name">Побутова хімія</div>
+    <div class="c-amt" id="homeTotal">0 грн</div>
+  </div>
+  <div class="cat-card" onclick="goTo('bills.html')">
+    <span class="c-emoji">💡</span>
+    <div class="c-name">Комуналка</div>
+    <div class="c-amt" id="billsTotal">0 грн</div>
+  </div>
+  <div class="cat-card" onclick="goTo('savings.html')">
+    <span class="c-emoji">💰</span>
+    <div class="c-name">Відкладені</div>
+    <div class="c-amt">—</div>
+  </div>
+  <button class="plans-card" onclick="goTo('planner.html')">
+    <span class="c-emoji">📅</span>
+    Плани
+  </button>
+</div>
+
+<div class="sec-label">Додати витрату</div>
+<div class="panel">
+  <div class="form-row">
+    <input type="number" id="amount" placeholder="Сума (грн)" style="flex:1;min-width:0">
+    <select id="expenseType" style="flex:1;min-width:0">
+      <option value="products">🛒 Продукти</option>
+      <option value="walks">🚶 Прогулянки</option>
+      <option value="home">🧴 Побут</option>
+      <option value="bills">💡 Комуналка</option>
+    </select>
+  </div>
+  <button class="btn full" onclick="addExpense()">➕ Додати витрату</button>
+</div>
+
+<div class="sec-label">Нагадування</div>
+<div class="panel">
+  <div class="form-row">
+    <input id="text" placeholder="Що зробити" style="flex:1;min-width:0">
+    <input id="date" type="date" style="width:150px;min-width:0">
+  </div>
+  <button class="btn full" onclick="addReminder()">📌 Додати нагадування</button>
+  <div id="result" style="margin-top:10px"></div>
+</div>
+
+<div class="sec-label">Найближчі плани</div>
+<div class="panel">
+  <div id="plansPreview"></div>
+  <h2 id="monthTitle" style="font-size:16px;font-weight:900;text-align:center;margin:14px 0 6px;text-transform:none"></h2>
+  <div id="calendar"></div>
+</div>
+
+<script>
+  document.getElementById('currentDate').textContent =
+    new Date().toLocaleDateString('uk-UA', {
+      weekday: 'long', year: 'numeric',
+      month: 'long', day: 'numeric'
+    });
+</script>
+<script type="module" src="script.js"></script>
+
+</body>
+</html>

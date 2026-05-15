@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Планер</title>
+  <link rel="stylesheet" href="planner.css">
+</head>
+<body>
+
+<div class="sub-header">
+  <button class="back-btn" onclick="goBack()">← Назад</button>
+  <h1>📅 Планер прогулянок</h1>
+</div>
+
+<div class="sec-label">Додати план</div>
+<div class="panel">
+  <div class="form-row">
+    <input type="date" id="date" style="flex:1;min-width:0">
+    <input type="text" id="plan" placeholder="Куди хочеш піти?" style="flex:2;min-width:0">
+  </div>
+  <button class="btn full" onclick="addPlan()">➕ Додати план</button>
+</div>
+
+<div class="sec-label">Всі плани</div>
+<div id="plans" style="padding:0 16px 20px">
+  <div style="text-align:center;padding:32px;color:var(--muted);font-size:14px">Немає планів 🌿</div>
+</div>
+
+<script src="planner.js"></script>
+</body>
+</html>

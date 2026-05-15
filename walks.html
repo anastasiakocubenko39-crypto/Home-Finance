@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Прогулянки</title>
+  <link rel="stylesheet" href="walks.css">
+</head>
+<body>
+
+<div class="sub-header">
+  <button class="back-btn" onclick="goBack()">← Назад</button>
+  <h1>🚶 Прогулянки</h1>
+</div>
+
+<div class="total-bar">
+  <div>
+    <div class="t-label">Всього витрачено</div>
+    <div class="t-val"><span id="total">0</span> грн</div>
+  </div>
+  <div class="t-icon">🚶</div>
+</div>
+
+<div class="sec-label">Додати витрату</div>
+<div class="panel">
+  <div class="form-row">
+    <input id="title" placeholder="Що це було? (кава, кіно…)" style="flex:2;min-width:0">
+    <select id="category" style="flex:1;min-width:0">
+      <option value="☕ Кава">☕ Кава</option>
+      <option value="🍔 Їжа">🍔 Їжа</option>
+      <option value="🚗 Транспорт">🚗 Транспорт</option>
+      <option value="🎭 Розваги">🎭 Розваги</option>
+      <option value="🛍 Інше">🛍 Інше</option>
+    </select>
+  </div>
+  <div class="form-row" style="margin-top:8px">
+    <input id="amount" type="number" placeholder="Сума (грн)" style="flex:1;min-width:0">
+    <button class="btn" onclick="addWalk()">➕ Додати</button>
+  </div>
+</div>
+
+<div class="sec-label">Список витрат</div>
+<div id="list" style="padding:0 16px 20px"></div>
+
+<script src="walks.js"></script>
+
+</body>
+</html>

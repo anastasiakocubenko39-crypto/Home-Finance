@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Продукти та Витрати</title>
+
+  <link rel="stylesheet" href="products.css">
+</head>
+
+<body>
+
+<button class="back-btn" onclick="goBack()">← Назад</button>
+
+<h1>🛒 Облік Продуктів</h1>
+
+<p id="currentPeriodInfo">
+  Завантаження періоду...
+</p>
+
+<!-- ПОТОЧНИЙ ТИЖДЕНЬ -->
+
+<div class="week-info-box">
+
+  📅 <span id="currentWeekLabel">
+    Завантаження...
+  </span>
+
+</div>
+
+<!-- ДОДАТИ ПРОДУКТ -->
+
+<section class="panel">
+
+  <h2>➕ Додати продукт</h2>
+
+  <div class="add-panel">
+
+    <input
+      id="productInput"
+      placeholder="Назва продукту"
+    >
+
+    <input
+      id="amountInput"
+      type="number"
+      placeholder="Кількість"
+    >
+
+    <select id="unitInput">
+
+      <option value="г">г</option>
+      <option value="кг">кг</option>
+      <option value="шт">шт</option>
+      <option value="мл">мл</option>
+
+    </select>
+
+    <input
+      id="priceInput"
+      type="number"
+      placeholder="Ціна"
+    >
+
+    <button onclick="addProduct()">
+      Додати
+    </button>
+
+  </div>
+
+</section>
+
+<!-- ВИТРАТИ -->
+
+<section class="panel">
+
+  <h2>💰 Витрати поточного місяця</h2>
+
+  <div id="productsMoneyTotal" class="money-total">
+
+    0 грн
+
+  </div>
+
+</section>
+
+<!-- ТИЖНІ -->
+
+<section class="panel">
+
+  <h2>📅 Поточний місяць / 4 тижні</h2>
+
+  <div class="scroll-area">
+
+    <div id="productsWeekChart"></div>
+
+  </div>
+
+  <div class="ctrl-btns">
+
+  <button class="blue-btn" onclick="finishWeek()">
+    ✅ Завершити тиждень
+  </button>
+
+  <button class="gray-btn" onclick="resetToNewMonth()">
+    🔄 Оновити поточний місяць
+  </button>
+
+  <button class="gray-btn" onclick="saveManualArchive()">
+  📦 Зберегти архів різниці
+</button>
+
+</div>
+
+</section>
+
+<!-- Є ВДОМА -->
+
+<section class="panel">
+
+  <h2>🏠 Є вдома</h2>
+
+  <div class="scroll-area">
+
+    <div id="productList"></div>
+
+  </div>
+
+</section>
+
+<!-- СПИСОК ПОКУПОК -->
+
+<section class="panel">
+
+  <h2>🛒 Список покупок</h2>
+
+  <div class="scroll-area">
+
+    <div id="buyList"></div>
+
+  </div>
+
+</section>
+
+<!-- АРХІВ / ЧЕК -->
+<section class="panel">
+
+  <h2>📦 Архів різниці в продуктах</h2>
+
+  <div class="scroll-area">
+
+    <div id="manualArchiveHistory"></div>
+
+  </div>
+<button
+  class="gray-btn"
+  onclick="clearManualArchiveHistory()"
+>
+  🗑 Очистити архів
+</button>
+</section>
+
+<section class="panel">
+
+  <h2>📜 Список продуктів (Архів/Чек)</h2>
+
+  <div class="scroll-area">
+
+    <table class="manual-table main-manual-table">
+
+      <thead>
+
+        <tr>
+
+          <th>⭐ Продукт</th>
+          <th>👀 Треба</th>
+          <th>🙂 Ціна</th>
+          <th>❤️ Куплено</th>
+          <th>✔ Різниця</th>
+
+        </tr>
+
+      </thead>
+
+<tbody>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+<tr>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td class="diff-cell"></td>
+</tr>
+
+</tbody>
+
+    </table>
+
+  </div>
+
+</section>
+
+<!-- АРХІВ ТИЖНІВ -->
+
+<section class="panel">
+
+  <h2>🗂️ Архів тижнів</h2>
+
+  <p class="archive-note">
+
+    Тут зберігаються всі завершені тижні
+    з повним переліком продуктів.
+
+  </p>
+
+  <div class="scroll-area">
+
+    <div id="weekArchiveList"></div>
+
+  </div>
+
+</section>
+
+<!-- КАТАЛОГ -->
+
+<section class="panel">
+
+  <div
+    class="catalog-header"
+    onclick="togglePriceCatalog()"
+  >
+
+    <h2>🏷️ Каталог цін на продукти</h2>
+
+    <span id="priceCatalogToggleIcon">
+      ▼
+    </span>
+
+  </div>
+
+  <div id="priceCatalogBody">
+
+    <div class="add-panel">
+
+      <input id="pcName" placeholder="Назва">
+
+      <input
+        id="pcAmount"
+        type="number"
+        placeholder="Кількість"
+      >
+
+      <select id="pcUnit">
+
+        <option value="г">г</option>
+        <option value="мл">мл</option>
+        <option value="шт">шт</option>
+
+      </select>
+
+      <input
+        id="pcPrice"
+        type="number"
+        placeholder="Ціна"
+      >
+
+      <button onclick="addPriceCatalogItem()">
+
+        Додати в каталог
+
+      </button>
+
+    </div>
+
+    <div class="search-wrap">
+
+      <input
+        type="text"
+        id="catalogSearchInput"
+        placeholder="🔍 Пошук продукту..."
+        oninput="filterCatalog(this.value)"
+      >
+
+    </div>
+
+    <div class="scroll-area">
+
+      <div id="priceCatalogList"></div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<!-- РЕЦЕПТИ -->
+
+<section class="panel">
+
+  <h2>🗓️ Рецепти на тиждень</h2>
+
+  <div class="recipe-form">
+
+    <select id="recipeDay">
+
+      <option value="понеділок">понеділок</option>
+      <option value="вівторок">вівторок</option>
+      <option value="середа">середа</option>
+      <option value="четвер">четвер</option>
+      <option value="пʼятниця">пʼятниця</option>
+      <option value="субота">субота</option>
+      <option value="неділя">неділя</option>
+
+    </select>
+
+    <input
+      id="recipeName"
+      placeholder="Назва рецепта"
+    >
+
+    <textarea
+      id="recipeText"
+      rows="3"
+      placeholder="Приклад: картопля 500г, молоко 200мл"
+    ></textarea>
+
+    <button onclick="addRecipe()">
+
+      Зберегти рецепт
+
+    </button>
+
+  </div>
+
+  <div class="scroll-area">
+
+    <div id="weekRecipes"></div>
+
+  </div>
+
+</section>
+
+<!-- ВЕСЬ ПЕРІОД -->
+
+<section class="panel">
+
+  <h2>📊 Витрати за весь період</h2>
+
+  <div class="scroll-area">
+
+    <div id="allTimeChart"></div>
+
+  </div>
+
+</section>
+
+<script type="module" src="products.js"></script>
+
+</body>
+</html>

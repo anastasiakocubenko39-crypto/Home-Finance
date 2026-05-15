@@ -1,0 +1,978 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  padding: 20px;
+  text-align: center;
+  background: linear-gradient(135deg, #0c3152, #57c15f);
+  color: white;
+}
+
+h1 {
+  margin-top: 45px;
+}
+
+/* =========================================================
+   🔥 КНОПКА НАЗАД
+========================================================= */
+
+.back-btn {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+
+  background: #06284a;
+  color: white;
+
+  border: none;
+
+  padding: 8px 14px;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  z-index: 1000;
+}
+
+/* =========================================================
+   🔥 PANEL
+========================================================= */
+.panel {
+
+  background: white;
+
+  color: black;
+
+  margin: 18px auto;
+
+  padding: 20px;
+
+  border-radius: 24px;
+
+  max-width: 900px;
+
+  width: calc(100% - 20px);
+
+  box-sizing: border-box;
+
+  box-shadow:
+    0 8px 24px rgba(0,0,0,0.12);
+
+  overflow: hidden;
+}
+
+/* =========================================================
+   🔥 ВНУТРІШНІЙ СКРОЛ
+========================================================= */
+
+.scroll-area {
+
+  max-height: 520px;
+
+  overflow-y: auto;
+
+  overflow-x: hidden;
+
+  padding-right: 6px;
+
+  margin-top: 10px;
+
+  overscroll-behavior: contain;
+
+  -webkit-overflow-scrolling: touch;
+
+  scrollbar-gutter: stable;
+
+  touch-action: pan-y;
+}
+
+/* =========================================================
+   🔥 SCROLLBAR
+========================================================= */
+
+.scroll-area::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scroll-area::-webkit-scrollbar-track {
+  background: #e6e6e6;
+  border-radius: 20px;
+}
+
+.scroll-area::-webkit-scrollbar-thumb {
+  background: #00c853;
+  border-radius: 20px;
+}
+
+.scroll-area::-webkit-scrollbar-thumb:hover {
+  background: #00e676;
+}
+
+/* =========================================================
+   🔥 FORMS
+========================================================= */
+
+.add-panel,
+.recipe-form {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+input,
+select {
+  padding: 11px;
+
+  border-radius: 12px;
+
+  border: none;
+
+  background: #eef3ff;
+}
+
+/* =========================================================
+   🔥 BUTTONS
+========================================================= */
+
+button {
+  padding: 11px 16px;
+
+  border-radius: 12px;
+
+  border: none;
+
+  background: #00c853;
+
+  color: white;
+
+  cursor: pointer;
+
+  font-weight: bold;
+
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: scale(1.04);
+}
+
+/* =========================================================
+   🔥 ITEMS
+========================================================= */
+
+.item {
+  background: #eeeeee;
+
+  margin: 10px auto;
+
+  padding: 12px;
+
+  border-radius: 14px;
+
+  max-width: 760px;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  gap: 8px;
+
+  align-items: center;
+
+  flex-wrap: wrap;
+}
+
+/* =========================================================
+   🔥 WEEK / MONTH
+========================================================= */
+
+.week-row,
+.month-row {
+  text-align: left;
+
+  margin: 14px 0;
+
+  font-weight: bold;
+}
+
+.week-bar,
+.month-bar {
+  height: 15px;
+
+  background: #ddd;
+
+  border-radius: 30px;
+
+  overflow: hidden;
+
+  margin-top: 6px;
+}
+
+.week-fill,
+.month-fill {
+  height: 100%;
+
+  transition: 0.3s;
+}
+
+/* =========================================================
+   🔥 DAY CARD
+========================================================= */
+
+.day-card {
+  background: #f3f3f3;
+
+  margin: 12px 0;
+
+  padding: 15px;
+
+  border-radius: 18px;
+
+  text-align: left;
+}
+
+.recipe-small {
+  background: white;
+
+  padding: 10px;
+
+  border-radius: 12px;
+
+  margin-top: 8px;
+}
+
+/* =========================================================
+   🔥 DELETE BUTTON
+========================================================= */
+
+.delete-btn {
+  background: red;
+}
+
+/* =========================================================
+   🔥 КАТАЛОГ
+========================================================= */
+
+.catalog-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  cursor: pointer;
+
+  user-select: none;
+
+  padding: 4px 0;
+}
+
+.catalog-header h2 {
+  margin: 0;
+}
+
+.toggle-icon {
+  font-size: 18px;
+
+  color: #00c853;
+
+  transition: transform 0.2s;
+}
+
+.catalog-form {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+
+  align-items: center;
+
+  margin: 14px 0 10px;
+}
+
+.catalog-form input,
+.catalog-form select {
+  width: 100%;
+
+  max-width: 400px;
+
+  box-sizing: border-box;
+}
+
+.catalog-row {
+  display: flex;
+
+  gap: 8px;
+
+  width: 100%;
+
+  max-width: 400px;
+}
+
+.catalog-row input {
+  flex: 1;
+}
+
+.catalog-row select {
+  width: 80px;
+
+  flex-shrink: 0;
+}
+
+.catalog-hint {
+  font-size: 13px;
+
+  color: #666;
+
+  margin: 8px 0 4px;
+
+  line-height: 1.5;
+}
+
+.catalog-item {
+
+  background: #eef3ff;
+
+  margin: 10px auto;
+
+  padding: 14px;
+
+  border-radius: 16px;
+
+  max-width: 760px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+
+  text-align: left;
+
+  box-sizing: border-box;
+}
+
+.catalog-item small {
+  color: #888;
+
+  margin-left: 6px;
+}
+
+/* =========================================================
+   🔥 RECIPE TABLE
+========================================================= */
+
+.recipe-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 8px;
+}
+
+.recipe-table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  font-size: 13px;
+
+  margin-top: 6px;
+}
+
+.recipe-table th,
+.recipe-table td {
+  border: 1px solid #e0e0e0;
+
+  padding: 6px 10px;
+
+  text-align: left;
+}
+
+.recipe-table thead tr {
+  background: #eef3ff;
+
+  font-weight: 600;
+}
+
+.recipe-table tbody tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+.recipe-total-row {
+  font-weight: bold;
+
+  background: #e8f5e9 !important;
+}
+
+.price-cell {
+  color: #00897b;
+
+  font-weight: 600;
+}
+
+/* =========================================================
+   🔥 TEXTAREA
+========================================================= */
+
+#recipeText {
+  width: 100%;
+
+  max-width: 500px;
+
+  padding: 11px;
+
+  border-radius: 12px;
+
+  border: none;
+
+  background: #eef3ff;
+
+  font-family: Arial, sans-serif;
+
+  font-size: 14px;
+
+  resize: vertical;
+
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   🔥 MOBILE
+========================================================= */
+@media (max-width: 768px) {
+
+  body {
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 28px;
+  }
+
+  .panel {
+    margin: 14px auto;
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .scroll-area {
+    max-height: 420px;
+  }
+
+  /* =====================================================
+     🔥 FORMS
+  ===================================================== */
+
+  .add-panel,
+  .recipe-form,
+  .catalog-form {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+    align-items: stretch;
+  }
+
+  /* =====================================================
+     🔥 INPUTS
+  ===================================================== */
+
+  input,
+  select,
+  textarea {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    font-size: 16px;
+
+    padding: 12px;
+
+    border-radius: 12px;
+  }
+
+  /* =====================================================
+     🔥 BUTTONS
+  ===================================================== */
+
+  button {
+
+    width: auto;
+
+    min-height: 44px;
+
+    padding: 12px 16px;
+
+    border-radius: 12px;
+
+    font-size: 15px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+  }
+
+  /* =====================================================
+     🔥 CARDS
+  ===================================================== */
+
+  .item,
+  .catalog-item,
+  .recipe-small,
+  .day-card {
+
+    padding: 12px;
+
+    border-radius: 14px;
+
+    font-size: 14px;
+
+    overflow-x: auto;
+  }
+
+  /* =====================================================
+     🔥 TABLE
+  ===================================================== */
+
+  .recipe-table {
+    min-width: 650px;
+  }
+
+  /* =====================================================
+     🔥 SEARCH
+  ===================================================== */
+
+  #catalogSearchInput {
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  /* =====================================================
+     🔥 CATALOG ROW
+  ===================================================== */
+
+  .catalog-row {
+
+    display: flex;
+
+    flex-direction: row;
+
+    gap: 8px;
+  }
+
+  .catalog-row input {
+    flex: 1;
+  }
+
+  .catalog-row select {
+    width: 90px;
+  }
+
+  /* =====================================================
+   🔥 PRICE CATALOG FIX
+===================================================== */
+
+#priceCatalogBody {
+
+  max-height: 650px;
+
+  overflow-y: auto;
+
+  overflow-x: hidden;
+
+  padding-right: 6px;
+
+  overscroll-behavior: contain;
+
+  -webkit-overflow-scrolling: touch;
+}
+
+/* scrollbar */
+
+#priceCatalogBody::-webkit-scrollbar {
+  width: 8px;
+}
+
+#priceCatalogBody::-webkit-scrollbar-thumb {
+  background: #00c853;
+  border-radius: 20px;
+}
+
+/* =========================================================
+   🔥 ARCHIVE TABLE
+========================================================= */
+
+.archive-table-wrap {
+
+  overflow-x: auto;
+
+  margin-top: 20px;
+}
+
+.archive-table {
+
+  width: 100%;
+
+  border-collapse: collapse;
+
+  min-width: 900px;
+
+  background: white;
+
+  border-radius: 18px;
+
+  overflow: hidden;
+}
+
+.archive-table th {
+
+  background: #0c3152;
+
+  color: white;
+
+  padding: 14px;
+
+  font-size: 15px;
+}
+
+.archive-table td {
+
+  padding: 12px;
+
+  border-bottom: 1px solid #ddd;
+
+  text-align: center;
+
+  font-size: 14px;
+}
+
+.archive-table tr:nth-child(even) {
+
+  background: #f7f7f7;
+}
+
+.need-title {
+
+  background: #00c853 !important;
+}
+
+.fact-title {
+
+  background: #ff4081 !important;
+}
+
+/* =========================================================
+   🔥 SMART CHECK
+========================================================= */
+
+.smart-check-grid {
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 20px;
+
+  margin-top: 20px;
+}
+
+.smart-side {
+
+  background: #f8f8f8;
+
+  border-radius: 20px;
+
+  overflow: hidden;
+
+  border: 1px solid #ddd;
+}
+
+.smart-title {
+
+  padding: 16px;
+
+  color: white;
+
+  font-size: 20px;
+
+  font-weight: bold;
+
+  text-align: center;
+}
+
+.recipe-title {
+
+  background: #00c853;
+}
+
+.fact-title {
+
+  background: #ff4081;
+}
+
+.smart-header {
+
+  display: grid;
+
+  grid-template-columns:
+    1.4fr
+    1fr
+    1fr
+    1fr;
+
+  background: #0c3152;
+
+  color: white;
+
+  font-weight: bold;
+
+  padding: 14px;
+
+  font-size: 14px;
+}
+
+.smart-row {
+
+  display: grid;
+
+  grid-template-columns:
+    1.4fr
+    1fr
+    1fr
+    1fr;
+
+  align-items: center;
+
+  padding: 12px 14px;
+
+  border-bottom: 1px solid #e0e0e0;
+
+  font-size: 14px;
+}
+
+.smart-row:nth-child(even) {
+
+  background: #f4f4f4;
+}
+
+.smart-product {
+
+  font-weight: bold;
+}
+
+.diff-plus {
+
+  color: #00c853;
+
+  font-weight: bold;
+}
+
+.diff-minus {
+
+  color: red;
+
+  font-weight: bold;
+}
+
+/* =========================================================
+   🔥 MOBILE
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .smart-check-grid {
+
+    grid-template-columns: 1fr;
+  }
+
+  #priceCatalogBody {
+
+    max-height: 500px;
+  }
+
+}
+/* =========================================================
+   🔥 MOBILE
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .smart-check-grid {
+
+    grid-template-columns: 1fr;
+  }
+
+}
+/* =========================================================
+   🔥 MANUAL TABLE
+========================================================= */
+
+./* =========================================================
+   📦 MANUAL TABLE FIX
+========================================================= */
+
+.manual-table {
+
+  width: 100%;
+
+  min-width: 900px;
+
+  border-collapse: collapse;
+
+  background: #ffffff;
+
+  color: #111;
+
+  border-radius: 18px;
+
+  overflow: hidden;
+}
+
+.manual-table thead {
+
+  position: sticky;
+
+  top: 0;
+
+  z-index: 5;
+}
+
+.manual-table th {
+
+  background: #0c3152;
+
+  color: white;
+
+  padding: 16px 14px;
+
+  font-size: 16px;
+
+  font-weight: 700;
+
+  text-align: center;
+
+  border-right: 1px solid rgba(255,255,255,0.1);
+
+  white-space: nowrap;
+}
+
+.manual-table td {
+
+  border: 1px solid #e0e0e0;
+
+  min-width: 160px;
+
+  height: 52px;
+
+  padding: 10px;
+
+  text-align: center;
+
+  vertical-align: middle;
+
+  background: white;
+
+  font-size: 15px;
+}
+
+.manual-table tbody tr:nth-child(even) td {
+
+  background: #f7f9fc;
+}
+
+.manual-table td[contenteditable="true"] {
+
+  cursor: text;
+}
+
+.manual-table td[contenteditable="true"]:focus {
+
+  outline: 2px solid #00c853;
+
+  background: #f1fff4;
+}
+
+.diff-cell {
+
+  font-weight: bold;
+
+  font-size: 17px;
+}
+
+/* =========================================================
+   SCROLL
+========================================================= */
+
+.scroll-area {
+
+  overflow-x: auto;
+
+  overflow-y: auto;
+
+  max-height: 600px;
+
+  border-radius: 14px;
+
+  padding-bottom: 10px;
+}
+
+.scroll-area::-webkit-scrollbar {
+
+  width: 10px;
+
+  height: 10px;
+}
+
+.scroll-area::-webkit-scrollbar-thumb {
+
+  background: #00c853;
+
+  border-radius: 20px;
+}
+
+.scroll-area::-webkit-scrollbar-track {
+
+  background: #ddd;
+
+  border-radius: 20px;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .manual-table {
+
+    min-width: 950px;
+  }
+
+  .manual-table th {
+
+    font-size: 14px;
+
+    padding: 14px 10px;
+  }
+
+  .manual-table td {
+
+    min-width: 140px;
+
+    font-size: 14px;
+  }
+
+}

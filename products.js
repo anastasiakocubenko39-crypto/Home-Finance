@@ -2233,3 +2233,60 @@ window.saveManualArchive = function () {
 };
 
 console.log("✅ saveManualArchive fixed");
+// ============================================================
+// 💾 АВТОЗБЕРЕЖЕННЯ ТАБЛИЦІ В localStorage
+// ============================================================
+
+function saveManualTableToStorage() {
+  const table = document.querySelector(".main-manual-table");
+  if (!table) return;
+  const rows = table.querySelectorAll("tbody tr");
+  const data = [];
+  rows.forEach(row => {
+    data.push([
+      row.cells[0]?.innerText || "",
+      row.cells[1]?.innerText || "",
+      row.cells[2]?.innerText || "",
+      row.cells[3]?.innerText || "",
+    ]);
+  });
+  localStorage.setItem("manualTableData", JSON.stringify(data));
+}
+
+function loadManualTableFromStorage() {
+  const saved = localStorage.getItem("manualTableData");
+  if (!saved) return;
+  const table = document.querySelector(".main-manual-table");
+  if (!table) return;
+  const rows = table.querySelectorAll("tbody tr");
+  const data = JSON.parse(saved);
+  data.forEach((rowData, i) => {
+    if (!rows[i]) return;
+    if (rows[i].cells[0]) rows[i].cells[0].innerText = rowData[0] || "";
+    if (rows[i].cells[1]) rows[i].cells[1].innerText = rowData[1] || "";
+    if (rows[i].cells[2]) rows[i].cells[2].innerText = rowData[2] || "";
+    if (rows[i].cells[3]) rows[i].cells[3].innerText = rowData[3] || "";
+  });
+  calculateManualTable();
+}
+
+// Слухаємо зміни в таблиці — зберігаємо автоматично
+document.addEventListener("input", function(e) {
+  if (e.target.closest(".main-manual-table")) {
+    saveManualTableToStorage();
+  }
+});
+
+// Завантажуємо дані при відкритті сторінки
+document.addEventListener("DOMContentLoaded", function() {
+  loadManualTableFromStorage();
+});
+
+// Очищаємо localStorage при збереженні в архів
+const _origSaveManualArchive = window.saveManualArchive;
+window.saveManualArchive = function() {
+  _origSaveManualArchive();
+  localStorage.removeItem("manualTableData");
+};
+
+console.log("✅ Автозбереження таблиці підключено");

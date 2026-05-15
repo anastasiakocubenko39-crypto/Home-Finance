@@ -2277,10 +2277,8 @@ document.addEventListener("input", function(e) {
   }
 });
 
-// Завантажуємо дані при відкритті сторінки
-document.addEventListener("DOMContentLoaded", function() {
-  loadManualTableFromStorage();
-});
+// type="module" виконується після DOM — викликаємо одразу
+loadManualTableFromStorage();
 
 // Очищаємо localStorage при збереженні в архів
 const _origSaveManualArchive = window.saveManualArchive;

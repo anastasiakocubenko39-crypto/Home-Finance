@@ -1,0 +1,14 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Кожен акаунт бачить і змінює лише свої дані
+    match /users/{uid}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    // Дані старої версії (без входу) — лише читання для перенесення
+    match /{collection}/{doc} {
+      allow read: if request.auth != null
+        && collection in ['budget', 'history', 'savingsGoals', 'reminders', 'products', 'buyProducts', 'priceCatalog'];
+    }
+  }
+}

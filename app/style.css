@@ -242,3 +242,5 @@ label.f { display: grid; gap: 7px; font-size: 12px; font-weight: 600; letter-spa
 .chat-log { overflow-x: hidden; }
 .msg { max-width: min(86%, 760px); overflow-x: auto; }
 @media (max-width: 900px) { .msg { max-width: 100%; } .nt { font-size: 12px; } .nt th, .nt td { padding: 6px 5px; } }
+
+.msg { flex-shrink: 0; overflow-y: visible; }

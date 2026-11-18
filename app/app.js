@@ -42,7 +42,7 @@ const ic = (n) => `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="curr
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const money = (n) => `${Math.round(Number(n) || 0).toLocaleString('uk-UA').replace(/,/g, ' ')} ₴`;
+const money = (n) => { const v = Number(n) || 0; return `${(Math.sign(v) * Math.round(Math.abs(v))).toLocaleString('uk-UA').replace(/,/g, ' ')} ₴`; };
 const num = (v) => { const n = parseFloat(String(v ?? '').replace(/\s/g, '').replace(',', '.')); return isFinite(n) ? n : 0; };
 const pad = (n) => String(n).padStart(2, '0');
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
@@ -111,9 +111,14 @@ function start(u, mode) {
   S = createStore(mode, u.uid);
   $('#auth').hidden = true; $('#app').hidden = false;
   $('#who').textContent = u.email;
-  Object.keys(D).forEach((c) => unsub.push(S.watch(c, (list) => { D[c] = list; render(); })));
+  resubscribe();
   route();
 }
+function resubscribe() {
+  unsub.splice(0).forEach((f) => f());
+  Object.keys(D).forEach((c) => unsub.push(S.watch(c, (list) => { D[c] = list; render(); })));
+}
+addEventListener('hf-error', (e) => toast('Не вдалося зберегти: ' + (e.detail?.code === 'permission-denied' ? 'немає доступу до бази' : e.detail?.message || 'помилка')));
 async function logout() {
   if (S?.mode === 'demo') { localStorage.removeItem('hf_demo'); location.reload(); return; }
   await auth.signOut(); location.reload();
@@ -149,12 +154,13 @@ let renderQueued = false;
 function render(force) {
   if (!S) return;
   if (!force) { if (renderQueued) return; renderQueued = true; requestAnimationFrame(() => { renderQueued = false; draw(); }); return; }
-  draw();
+  draw(true);
 }
-function draw() {
-  // не перемальовуємо, поки людина друкує у полі (щоб не губився фокус)
+function draw(force) {
+  // не перемальовуємо, поки людина друкує у полі (щоб не губився фокус); перехід між розділами — завжди
   const a = document.activeElement;
-  if (a && a.closest('#view') && /INPUT|TEXTAREA|SELECT/.test(a.tagName) && a.dataset.live !== '1' && view !== 'bot') { pending = true; return; }
+  if (!force && a && a.closest('#view') && /INPUT|TEXTAREA|SELECT/.test(a.tagName) && a.dataset.live !== '1' && view !== 'bot') { pending = true; return; }
+  if (force && a && a.closest?.('#view')) a.blur();
   pending = false;
   const V = { overview, expenses, products, bot, bills, household, goals, plans, settings }[view];
   V($('#view'));
@@ -196,7 +202,7 @@ function expenseForm(e = {}) {
       if (editing) await S.update('expenses', e.id, d); else await S.add('expenses', d);
       close(); toast(editing ? 'Збережено' : `Додано ${money(amount)}`);
     });
-    $('#eAmt', box).onkeydown = (ev) => ev.key === 'Enter' && $('#eSave', box).click();
+    $('#eAmt', box).onkeydown = (ev) => { if (ev.key === 'Enter') $('#eSave', box).click(); };
   });
 }
 const delExpense = safe(async (id) => { if (confirm('Видалити витрату?')) { await S.remove('expenses', id); toast('Видалено'); } });
@@ -234,6 +240,10 @@ function overview(root) {
         <button class="btn" id="bSave">Зберегти бюджет</button>
         ${!F.budget && budgetOf(shiftMonth(month, -1)) ? `<button class="btn line" id="bCopy">Як минулого місяця (${money(budgetOf(shiftMonth(month, -1)))})</button>` : ''}
       </div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn line sm w-auto" id="mRefresh">Оновити дані</button>
+        <button class="btn line sm danger w-auto" id="mReset">Скинути ${monthLabel(month).toLowerCase()}</button>
+      </div>
     </div>
     <div class="grid g-main" style="margin-top:20px">
       <div class="card"><h3>Останні витрати <button class="btn sm" id="addExp">${ic('plus')}Додати</button></h3>
@@ -248,8 +258,17 @@ function overview(root) {
   bindMonth(root); bindItems(root);
   $('#addExp').onclick = () => expenseForm();
   $('#bSave').onclick = safe(async () => { const v = num($('#bAmt').value); if (v <= 0) return toast('Вкажіть суму бюджету'); await S.set('budgets', month, { amount: v }); $('#bAmt').blur(); toast('Бюджет збережено'); });
-  $('#bAmt').onkeydown = (e) => e.key === 'Enter' && $('#bSave').click();
+  $('#bAmt').onkeydown = (e) => { if (e.key === 'Enter') $('#bSave').click(); };
   $('#bCopy')?.addEventListener('click', safe(async () => { await S.set('budgets', month, { amount: budgetOf(shiftMonth(month, -1)) }); toast('Бюджет скопійовано'); }));
+  $('#mRefresh').onclick = () => { resubscribe(); toast('Дані оновлено'); };
+  $('#mReset').onclick = () => {
+    const l = monthExp(month);
+    modal(`<h3>Скинути ${monthLabel(month).toLowerCase()}?</h3><p class="sub" style="margin:0">Буде видалено ${l.length} витрат на суму ${money(sum(l))}. Інші місяці не зміняться.</p>
+      <label style="display:flex;gap:10px;align-items:center;font-size:14px"><input type="checkbox" id="rB"> Також скинути бюджет місяця</label>
+      <div class="row"><button class="btn line" data-close>Скасувати</button><button class="btn" id="rOk">Скинути</button></div>`, (box, close) => {
+      $('#rOk', box).onclick = safe(async () => { for (const e of l) await S.remove('expenses', e.id); if ($('#rB', box).checked) await S.remove('budgets', month); close(); toast('Місяць скинуто — можна починати спочатку'); });
+    });
+  };
   $$('[data-cat]', root).forEach((r) => (r.onclick = () => { expFilter.cat = r.dataset.cat; location.hash = 'expenses'; }));
 }
 

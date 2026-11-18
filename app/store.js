@@ -42,6 +42,9 @@ export const auth = {
   async signOut() { const { auth, a } = await firebase(); return a.signOut(auth); },
 };
 
+/* помилки фонового запису показуємо користувачу */
+const bg = (p) => p.catch((e) => { console.error(e); dispatchEvent(new CustomEvent('hf-error', { detail: e })); });
+
 /* ── сховище ── */
 export function createStore(mode, uid) {
   const listeners = {};
@@ -54,7 +57,7 @@ export function createStore(mode, uid) {
     const id = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
     return {
       mode,
-      watch(c, cb) { (listeners[c] ||= []).push(cb); cb(read(c)); return () => {}; },
+      watch(c, cb) { (listeners[c] ||= []).push(cb); cb(read(c)); return () => { listeners[c] = listeners[c].filter((x) => x !== cb); }; },
       async add(c, d) { const l = read(c); const x = { ...d, id: id(), createdAt: Date.now() }; l.push(x); write(c, l); return x.id; },
       async update(c, i, d) { write(c, read(c).map((x) => (x.id === i ? { ...x, ...d } : x))); },
       async set(c, i, d) { const l = read(c).filter((x) => x.id !== i); l.push({ ...d, id: i }); write(c, l); },
@@ -73,10 +76,12 @@ export function createStore(mode, uid) {
       });
       return () => unsub();
     },
-    async add(c, d) { const { db, fs } = await firebase(); const r = await fs.addDoc(fs.collection(db, path(c)), { ...d, createdAt: Date.now() }); return r.id; },
-    async update(c, i, d) { const { db, fs } = await firebase(); await fs.updateDoc(fs.doc(db, path(c), i), d); },
-    async set(c, i, d) { const { db, fs } = await firebase(); await fs.setDoc(fs.doc(db, path(c), i), d, { merge: true }); },
-    async remove(c, i) { const { db, fs } = await firebase(); await fs.deleteDoc(fs.doc(db, path(c), i)); },
+    /* Запис не чекає відповіді сервера: Firestore одразу показує зміну на екрані,
+       а на сервер відправляє у фоні (і дочекається з’єднання, якщо інтернет зник). */
+    async add(c, d) { const { db, fs } = await firebase(); const ref = fs.doc(fs.collection(db, path(c))); bg(fs.setDoc(ref, { ...d, createdAt: Date.now() })); return ref.id; },
+    async update(c, i, d) { const { db, fs } = await firebase(); bg(fs.updateDoc(fs.doc(db, path(c), i), d)); },
+    async set(c, i, d) { const { db, fs } = await firebase(); bg(fs.setDoc(fs.doc(db, path(c), i), d, { merge: true })); },
+    async remove(c, i) { const { db, fs } = await firebase(); bg(fs.deleteDoc(fs.doc(db, path(c), i))); },
     async batchAdd(c, arr) {
       const { db, fs } = await firebase();
       for (let k = 0; k < arr.length; k += 400) {

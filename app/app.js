@@ -67,7 +67,7 @@ const safe = (fn) => async (...a) => { try { await fn(...a); } catch (e) { conso
 /* ── стан ── */
 let S = null; // сховище
 let user = null;
-const D = { expenses: [], budgets: [], pantry: [], catalog: [], bills: [], meters: [], household: [], goals: [], plans: [] };
+const D = { expenses: [], budgets: [], pantry: [], catalog: [], bills: [], meters: [], household: [], goals: [], plans: [], settings: [] };
 let month = monthOf(today());
 let view = 'overview';
 const unsub = [];
@@ -177,12 +177,42 @@ const monthExp = (m) => D.expenses.filter((e) => monthOf(e.date) === m);
 const sum = (l) => l.reduce((s, e) => s + num(e.amount), 0);
 const byCat = (l) => { const o = {}; l.forEach((e) => (o[e.cat] = (o[e.cat] || 0) + num(e.amount))); return o; };
 const budgetOf = (m) => num(D.budgets.find((b) => b.id === m)?.amount);
+/* дні отримання грошей (зарплата, аванс) з налаштувань */
+const paySettings = () => D.settings.find((x) => x.id === 'pay') || {};
+function payDays() {
+  const s = paySettings();
+  return [['salary', 'Зарплата', s.salaryDay, s.salaryAmount], ['advance', 'Аванс', s.advanceDay, s.advanceAmount]]
+    .filter(([, , d]) => +d >= 1 && +d <= 31).map(([k, name, d, a]) => ({ k, name, day: +d, amount: num(a) }));
+}
+/* найближче надходження після сьогодні (з урахуванням коротких місяців) */
+function nextPay(from = new Date()) {
+  const days = payDays(); if (!days.length) return null;
+  const y = from.getFullYear(), m = from.getMonth(), d0 = from.getDate();
+  const cands = [];
+  for (const off of [0, 1]) for (const p of days) {
+    const last = new Date(y, m + off + 1, 0).getDate();
+    const dt = new Date(y, m + off, Math.min(p.day, last));
+    if (off === 1 || dt.getDate() > d0) cands.push({ ...p, date: dt });
+  }
+  cands.sort((a, b) => a.date - b.date);
+  const n = cands[0];
+  return { ...n, days: Math.round((n.date - new Date(y, m, d0)) / 864e5), label: `${n.date.getDate()} ${MONTHS_G[n.date.getMonth()]}` };
+}
+/* скільки можна витрачати на день до найближчих грошей.
+   Якщо вказані суми зарплати й авансу — рахуємо від того, що вже надійшло цього місяця. */
+function payInfo(budget, spent, N) {
+  const today = new Date().getDate();
+  const withAmounts = payDays().length > 0 && payDays().every((p) => p.amount > 0);
+  const received = payDays().filter((p) => p.day <= today).reduce((s, p) => s + p.amount, 0);
+  const avail = withAmounts && received ? received - spent : budget - spent;
+  return { avail, per: N && N.days > 0 && avail > 0 ? avail / N.days : 0, withAmounts };
+}
 function financeCtx() {
   const l = monthExp(month), pl = monthExp(shiftMonth(month, -1));
   const [y, mm] = month.split('-').map(Number);
   const last = new Date(y, mm, 0).getDate();
   const isNow = month === monthOf(today());
-  return { budget: budgetOf(month), spent: sum(l), byCat: byCat(l), prevSpent: sum(pl), prevByCat: byCat(pl), daysLeft: isNow ? last - new Date().getDate() + 1 : 0, catNames: Object.fromEntries(CATS.map((c) => [c.id, c.name])) };
+  return { budget: budgetOf(month), spent: sum(l), byCat: byCat(l), prevSpent: sum(pl), prevByCat: byCat(pl), daysLeft: isNow ? last - new Date().getDate() + 1 : 0, next: isNow ? nextPay() : null, pay: payInfo(budgetOf(month), sum(l), isNow ? nextPay() : null), catNames: Object.fromEntries(CATS.map((c) => [c.id, c.name])) };
 }
 
 /* ── додати/редагувати витрату ── */
@@ -253,7 +283,12 @@ function overview(root) {
       <div class="kpi"><span>Витрачено</span><b>${money(F.spent)}</b><small>${F.prevSpent ? `минулого місяця ${money(F.prevSpent)}` : `${monthExp(month).length} записів`}</small></div>
       <div class="kpi"><span>Залишок</span><b class="${left < 0 ? 'neg' : ''}">${F.budget ? money(left) : '—'}</b><small>${left < 0 ? 'перевищено' : 'до кінця місяця'}</small></div>
       <div class="kpi"><span>Відкладено всього</span><b>${money(D.goals.filter((g) => (g.currency || '₴') === '₴').reduce((s, g) => s + num(g.current), 0))}</b><small>${D.goals.length ? `${D.goals.length} цілей · <a href="#goals">переглянути</a>` : '<a href="#goals">створити ціль</a>'}</small></div>
-      <div class="kpi"><span>Можна на день</span><b>${F.budget && F.daysLeft && left > 0 ? money(left / F.daysLeft) : '—'}</b><small>${F.daysLeft ? `залишилось ${F.daysLeft} дн.` : 'місяць завершено'}</small></div>
+      ${(() => {
+        const N = F.next;
+        if (!N) return `<div class="kpi"><span>Можна на день</span><b>${F.budget && F.daysLeft && left > 0 ? money(left / F.daysLeft) : '—'}</b><small>${F.daysLeft ? `до кінця місяця ${F.daysLeft} дн. · <a href="#settings">дні зарплати</a>` : 'місяць завершено'}</small></div>`;
+        const { avail, per, withAmounts } = F.pay;
+        return `<div class="kpi"><span>Можна на день</span><b class="${avail < 0 ? 'neg' : ''}">${F.budget || withAmounts ? (avail > 0 ? money(per) : money(0)) : '—'}</b><small>до ${N.k === 'salary' ? 'зарплати' : 'авансу'} ${N.days} дн. (${N.label})</small></div>`;
+      })()}
     </div>
     <div class="card" style="margin-top:20px">
       <div class="progress-row"><span>Використано бюджету</span><span>${Math.round(pct)}%</span></div>
@@ -559,17 +594,32 @@ function plans(root) {
 }
 
 /* ═════════ НАЛАШТУВАННЯ ═════════ */
+const dayOpts = (v) => `<option value="">— не вказано —</option>` + Array.from({ length: 31 }, (_, i) => `<option value="${i + 1}"${+v === i + 1 ? ' selected' : ''}>${i + 1}-го числа</option>`).join('');
 function settings(root) {
   root.innerHTML = `
     <div class="head"><div><p class="kicker">Акаунт</p><h1 class="title">Налаштування</h1></div></div>
     <div class="grid g2">
       <div class="card"><h3>Акаунт</h3><p style="margin:0 0 6px">${esc(user.email)}</p><p class="sub" style="margin:0 0 18px">${S.mode === 'demo' ? 'Демо-режим: дані зберігаються лише в цьому браузері.' : 'Ваші дані зберігаються у хмарі й доступні лише вам з будь-якого пристрою.'}</p>
         <button class="btn line" id="out">${ic('out')}Вийти</button></div>
+      <div class="card"><h3>Зарплата і аванс</h3><p class="sub" style="margin:0 0 16px">Вкажіть, якого числа приходять гроші. «Можна на день» рахуватиме дні до найближчого надходження, а бот нагадуватиме, скільки протриматись.</p>
+        <div class="row"><label class="f">День зарплати<select class="field" id="sDay">${dayOpts(paySettings().salaryDay)}</select></label><label class="f">Сума зарплати, ₴<input class="field" id="sAmt" inputmode="decimal" value="${paySettings().salaryAmount || ''}" placeholder="необов’язково"></label></div>
+        <div class="row" style="margin-top:12px"><label class="f">День авансу<select class="field" id="aDay">${dayOpts(paySettings().advanceDay)}</select></label><label class="f">Сума авансу, ₴<input class="field" id="aAmt" inputmode="decimal" value="${paySettings().advanceAmount || ''}" placeholder="необов’язково"></label></div>
+        <label style="display:flex;gap:10px;align-items:center;margin-top:14px;font-size:14px"><input type="checkbox" id="pBudget" checked> Бюджет місяця = зарплата + аванс</label>
+        <button class="btn" id="pSave" style="margin-top:16px">Зберегти</button>
+        <p class="sub" id="pNext" style="font-size:13px">${nextPay() ? `Найближче: ${nextPay().name.toLowerCase()} ${nextPay().label}, через ${nextPay().days} дн.` : ''}</p></div>
       <div class="card"><h3>Перенести старі дані</h3><p class="sub" style="margin:0 0 18px">Скопіює в ваш акаунт дані зі старої версії: бюджет і історію, накопичення, нагадування, продукти й ціни (з бази), а також прогулянки, побут, комуналку і плани (з цього браузера).</p>
         <button class="btn" id="imp">${ic('down')}Перенести</button><p class="sub" id="impMsg" style="font-size:13px"></p></div>
     </div>`;
   $('#out').onclick = logout;
   $('#imp').onclick = safe(importLegacy);
+  $('#pSave').onclick = safe(async () => {
+    const d = { salaryDay: +$('#sDay').value || null, advanceDay: +$('#aDay').value || null, salaryAmount: num($('#sAmt').value) || null, advanceAmount: num($('#aAmt').value) || null };
+    await S.set('settings', 'pay', d);
+    const total = num(d.salaryAmount) + num(d.advanceAmount);
+    if ($('#pBudget').checked && total > 0) await S.set('budgets', monthOf(today()), { amount: total });
+    $$('#view input').forEach((i) => i.blur());
+    toast('Збережено' + ($('#pBudget').checked && total > 0 ? `. Бюджет місяця: ${money(total)}` : ''));
+  });
 }
 async function importLegacy() {
   const msg = $('#impMsg'); msg.textContent = 'Переношу…';

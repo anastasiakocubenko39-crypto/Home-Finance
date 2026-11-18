@@ -202,10 +202,11 @@ const GENERAL_TIPS = [
 export function financeTips(ctx) {
   const out = [];
   const { budget, spent, byCat, prevSpent, prevByCat, daysLeft, catNames } = ctx;
+  if (ctx.next) out.push(`До наступного надходження (${ctx.next.name.toLowerCase()}, ${ctx.next.label}) — <b>${ctx.next.days} дн.</b> ${ctx.pay?.per > 0 ? ` Щоб протриматись, витрачайте до <b>${r0(ctx.pay.per)} грн на день</b>.` : ctx.pay && ctx.pay.avail <= 0 ? ' Гроші до цього дня вже витрачено — відкладіть необов’язкові покупки.' : ''}`);
   if (budget > 0) {
     const left = budget - spent;
     if (left < 0) out.push(`Бюджет місяця перевищено на <b>${r0(-left)} грн</b>. Спробуйте до кінця місяця обмежитись найнеобхіднішим і перенести великі покупки.`);
-    else if (daysLeft > 0) out.push(`До кінця місяця ${daysLeft} дн. Щоб вкластися в бюджет, можна витрачати до <b>${r0(left / daysLeft)} грн на день</b>.`);
+    else if (daysLeft > 0 && !ctx.next) out.push(`До кінця місяця ${daysLeft} дн. Щоб вкластися в бюджет, можна витрачати до <b>${r0(left / daysLeft)} грн на день</b>.`);
     if (spent / budget > 0.8 && left >= 0) out.push(`Використано ${Math.round(spent / budget * 100)}% бюджету — час пригальмувати з необов’язковими витратами.`);
   } else out.push('Задайте бюджет на місяць на вкладці «Огляд» — тоді я рахуватиму денний ліміт і попереджатиму про перевищення.');
   const cats = Object.entries(byCat).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);

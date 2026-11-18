@@ -12,6 +12,7 @@ const CATS = [
   { id: 'transport', name: 'Транспорт', ic: 'car' },
   { id: 'health', name: 'Здоров’я', ic: 'heart' },
   { id: 'clothes', name: 'Одяг', ic: 'shirt' },
+  { id: 'savings', name: 'У накопичення', ic: 'target' },
   { id: 'other', name: 'Інше', ic: 'dots' },
 ];
 const CAT = Object.fromEntries(CATS.map((c) => [c.id, c]));
@@ -190,22 +191,43 @@ function expenseForm(e = {}) {
   modal(`<h3>${editing ? 'Редагувати витрату' : 'Нова витрата'}</h3>
     <label class="f">Сума, ₴<input class="field" id="eAmt" inputmode="decimal" value="${e.amount ?? ''}" placeholder="0"></label>
     <div><div class="f" style="margin-bottom:8px">Категорія</div><div class="chips" id="eCats">${CATS.map((c) => `<button type="button" class="chip" data-c="${c.id}" aria-pressed="${(e.cat || 'products') === c.id}">${ic(c.ic)}${c.name}</button>`).join('')}</div></div>
+    <label class="f" id="eGoalWrap" ${(e.cat || 'products') === 'savings' ? '' : 'hidden'}>Ціль накопичення<select class="field" id="eGoal">${D.goals.map((g) => `<option value="${g.id}"${e.goalId === g.id ? ' selected' : ''}>${esc(g.name)} (${Math.round(num(g.current))} з ${Math.round(num(g.target))} ${g.currency || '₴'})</option>`).join('')}<option value="__new">+ Нова ціль…</option></select></label>
     <label class="f">Коментар<input class="field" id="eNote" value="${esc(e.note || '')}" placeholder="Наприклад: АТБ, кава з подругою"></label>
     <label class="f">Дата<input class="field" id="eDate" type="date" value="${e.date || (month === monthOf(today()) ? today() : month + '-01')}"></label>
     <div class="row"><button class="btn line" data-close>Скасувати</button><button class="btn" id="eSave">${editing ? 'Зберегти' : 'Додати'}</button></div>`, (box, close) => {
     let cat = e.cat || 'products';
-    $$('#eCats .chip', box).forEach((b) => (b.onclick = () => { cat = b.dataset.c; $$('#eCats .chip', box).forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
+    $$('#eCats .chip', box).forEach((b) => (b.onclick = () => { cat = b.dataset.c; $$('#eCats .chip', box).forEach((x) => x.setAttribute('aria-pressed', x === b)); $('#eGoalWrap', box).hidden = cat !== 'savings'; }));
     $('#eSave', box).onclick = safe(async () => {
       const amount = num($('#eAmt', box).value);
       if (amount <= 0) { $('#eAmt', box).focus(); toast('Вкажіть суму'); return; }
       const d = { amount, cat, note: $('#eNote', box).value.trim(), date: $('#eDate', box).value || today() };
+      if (cat === 'savings') {
+        let gid = $('#eGoal', box).value;
+        if (gid === '__new' || !gid) { const name = prompt('Назва нової цілі (наприклад, «Відпустка»)'); if (!name?.trim()) return; gid = await S.add('goals', { name: name.trim(), target: amount * 10, current: 0, currency: '₴', history: [] }); }
+        d.goalId = gid; if (!d.note) d.note = 'У накопичення: ' + (D.goals.find((g) => g.id === gid)?.name || '');
+        const old = editing && e.cat === 'savings' && e.goalId ? num(e.amount) : 0;
+        if (old && e.goalId !== gid) await moveGoal(e.goalId, -old);
+        await moveGoal(gid, amount - (e.goalId === gid ? old : 0));
+      } else if (editing && e.cat === 'savings' && e.goalId) await moveGoal(e.goalId, -num(e.amount));
       if (editing) await S.update('expenses', e.id, d); else await S.add('expenses', d);
       close(); toast(editing ? 'Збережено' : `Додано ${money(amount)}`);
     });
     $('#eAmt', box).onkeydown = (ev) => { if (ev.key === 'Enter') $('#eSave', box).click(); };
   });
 }
-const delExpense = safe(async (id) => { if (confirm('Видалити витрату?')) { await S.remove('expenses', id); toast('Видалено'); } });
+/* поповнення або зменшення цілі накопичення з історією */
+async function moveGoal(id, delta) {
+  if (!delta) return;
+  const g = D.goals.find((x) => x.id === id);
+  const h = [...(g?.history || []), { type: delta > 0 ? 'add' : 'remove', amount: Math.abs(delta), date: dayLabel(today()) }];
+  await S.update('goals', id, { current: Math.max(0, num(g?.current) + delta), history: h });
+}
+const delExpense = safe(async (id) => {
+  if (!confirm('Видалити витрату?')) return;
+  const e = D.expenses.find((x) => x.id === id);
+  if (e?.cat === 'savings' && e.goalId && D.goals.some((g) => g.id === e.goalId)) await moveGoal(e.goalId, -num(e.amount));
+  await S.remove('expenses', id); toast('Видалено');
+});
 function expenseItem(e) {
   const c = CAT[e.cat] || CAT.other;
   return `<div class="item"><div class="ic">${ic(c.ic)}</div><div><div class="t">${esc(e.note || c.name)}</div><div class="m">${esc(c.name)}${e.auto ? ' · автоматично' : ''}</div></div>
@@ -226,10 +248,11 @@ function overview(root) {
   const toBuy = D.pantry.filter((p) => p.status === 'buy').length;
   root.innerHTML = `
     <div class="head"><div><p class="kicker">${new Date().toLocaleDateString('uk-UA', { weekday: 'long', day: 'numeric', month: 'long' })}</p><h1 class="title">Огляд місяця</h1></div>${monthNav()}</div>
-    <div class="grid g4">
+    <div class="grid g5">
       <div class="kpi gold"><span>Бюджет</span><b>${F.budget ? money(F.budget) : '—'}</b><small>${F.budget ? 'на ' + monthLabel(month).toLowerCase() : 'ще не задано'}</small></div>
       <div class="kpi"><span>Витрачено</span><b>${money(F.spent)}</b><small>${F.prevSpent ? `минулого місяця ${money(F.prevSpent)}` : `${monthExp(month).length} записів`}</small></div>
       <div class="kpi"><span>Залишок</span><b class="${left < 0 ? 'neg' : ''}">${F.budget ? money(left) : '—'}</b><small>${left < 0 ? 'перевищено' : 'до кінця місяця'}</small></div>
+      <div class="kpi"><span>Відкладено всього</span><b>${money(D.goals.filter((g) => (g.currency || '₴') === '₴').reduce((s, g) => s + num(g.current), 0))}</b><small>${D.goals.length ? `${D.goals.length} цілей · <a href="#goals">переглянути</a>` : '<a href="#goals">створити ціль</a>'}</small></div>
       <div class="kpi"><span>Можна на день</span><b>${F.budget && F.daysLeft && left > 0 ? money(left / F.daysLeft) : '—'}</b><small>${F.daysLeft ? `залишилось ${F.daysLeft} дн.` : 'місяць завершено'}</small></div>
     </div>
     <div class="card" style="margin-top:20px">

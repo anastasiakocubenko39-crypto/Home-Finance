@@ -244,3 +244,6 @@ label.f { display: grid; gap: 7px; font-size: 12px; font-weight: 600; letter-spa
 @media (max-width: 900px) { .msg { max-width: 100%; } .nt { font-size: 12px; } .nt th, .nt td { padding: 6px 5px; } }
 
 .msg { flex-shrink: 0; overflow-y: visible; }
+.g5 { grid-template-columns: repeat(5, 1fr); }
+@media (max-width: 1250px) { .g5 { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 900px) { .g5 { grid-template-columns: 1fr 1fr; gap: 10px; } }
